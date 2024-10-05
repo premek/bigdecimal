@@ -2,8 +2,10 @@
 
 [![Package Version](https://img.shields.io/hexpm/v/bigdecimal)](https://hex.pm/packages/bigdecimal)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/bigdecimal/)
+![Erlang Target](https://img.shields.io/badge/target-erlang-A90433)
+![JavaScript Target](https://img.shields.io/badge/target-javascript-F7E02A)
 
-A library for arbitrary precision decimal arithmetic in Gleam.
+A library for [arbitrary precision decimal arithmetic](https://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic) in Gleam.
 
 This library builds on the great [bigi](https://hex.pm/packages/bigi) library, which is used
 to represent the unscaled value of `BigDecimal`s.
@@ -38,6 +40,8 @@ Further documentation can be found at <https://hexdocs.pm/bigdecimal>.
 
 ## Development
 
+The library supports all targets and runtimes. To do a matrix run of the test suite, run:
+
 ```sh
-gleam test  # Run the tests
+./scripts/matrix-test.sh
 ```
