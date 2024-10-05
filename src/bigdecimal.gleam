@@ -28,6 +28,10 @@ pub fn zero() -> BigDecimal {
   BigDecimal(bigi.from_int(0), 0)
 }
 
+pub fn absolute(value: BigDecimal) -> BigDecimal {
+  BigDecimal(bigi.absolute(unscaled_value(value)), scale(value))
+}
+
 pub fn compare(this: BigDecimal, with that: BigDecimal) -> order.Order {
   case scale(this) == scale(that) {
     True -> bigi.compare(unscaled_value(this), unscaled_value(that))

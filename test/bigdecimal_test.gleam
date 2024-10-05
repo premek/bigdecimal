@@ -22,6 +22,29 @@ pub fn compare__test() {
   |> should.equal(expected_order)
 }
 
+pub fn absolute_value__test() {
+  use #(input, expected) <- list.each([
+    #(bigdecimal.from_float(-1.23), bigdecimal.from_float(1.23)),
+    #(bigdecimal.from_float(1.23), bigdecimal.from_float(1.23)),
+    #(
+      bigdecimal.from_string("-7.89E9") |> should.be_ok,
+      bigdecimal.from_string("7.89E9") |> should.be_ok,
+    ),
+    #(
+      bigdecimal.from_string("0.1234") |> should.be_ok,
+      bigdecimal.from_string("0.1234") |> should.be_ok,
+    ),
+    #(
+      bigdecimal.from_string("-1") |> should.be_ok,
+      bigdecimal.from_string("1") |> should.be_ok,
+    ),
+  ])
+
+  input
+  |> bigdecimal.absolute
+  |> should.equal(expected)
+}
+
 pub fn basic_parse__test() {
   use #(input, expected_unscaled_value, expected_scale) <- list.each([
     // basic
