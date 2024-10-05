@@ -38,12 +38,15 @@ jobs:
           version-file: .tool-versions
           version-type: strict
       - uses: actions/setup-node@v4
+        if: ${{ matrix.targets.runtime == 'nodejs' }}
         with:
           node-version-file: .tool-versions
       - uses: denoland/setup-deno@v1
+        if: ${{ matrix.targets.runtime == 'deno' }}
         with:
           deno-version-file: .tool-versions
       - uses: oven-sh/setup-bun@v2
+        if: ${{ matrix.targets.runtime == 'bun' }}
         with:
           bun-version-file: .tool-versions
       - run: gleam deps download
