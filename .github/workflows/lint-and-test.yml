@@ -1,0 +1,50 @@
+name: Lint and Test
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - run: gleam format --check src test
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targets:
+          - target: erl
+          - target: js
+            runtime: nodejs
+          - target: js
+            runtime: deno
+          - target: js
+            runtime: bun
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version-file: .tool-versions
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .tool-versions
+      - run: gleam deps download
+      - run: gleam test --target ${{ matrix.targets.target }} ${{ matrix.targets.runtime && format('--runtime {0}', matrix.targets.runtime) }}
