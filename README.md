@@ -7,7 +7,7 @@
 
 A library for [arbitrary precision decimal arithmetic](https://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic) in Gleam.
 
-This library builds on the great [bigi](https://hex.pm/packages/bigi) library, which is used
+This library builds on the excellent [bigi](https://hex.pm/packages/bigi) library, which is used
 to represent the unscaled value of `BigDecimal`s.
 A `BigDecimal` consists of an arbitrary precision integer unscaled value of type `bigi.Bigint`
 and an integer scale of built-in type `Int` (arbitrary precision on the Erlang target, bound between
@@ -16,7 +16,7 @@ and [Number.MAX_SAFE_INTEGER](https://developer.mozilla.org/en-US/docs/Web/JavaS
 on the JavaScript target). If zero or positive, the scale is the number of digits to the right of
 the decimal point. If negative, the unscaled value of the number is multiplied by ten to the power
 of the negation of the scale. The value of the number represented by the `BigDecimal` is therefore
-unscaledValue × 10<sup>-scale</sup>.
+unscaled_value × 10<sup>-scale</sup>.
 
 ## Usage
 
@@ -30,9 +30,9 @@ import bigdecimal
 pub fn main() {
   let assert Ok(number) = bigdecimal.from_string("12.00340")
 
-  bigdecimal.scale(number) // 5
+  bigdecimal.scale(of: number) // 5
 
-  bigdecimal.unscaled_value(number) // 1_200_340
+  bigdecimal.unscaled_value(of: number) // 1_200_340
 }
 ```
 
@@ -63,7 +63,7 @@ The library supports all targets and runtimes. To do a matrix run of the test su
 - [ ] power
 - [ ] modulo
 
-## Post v1
+### Post v1
 - [ ] clamp
 - [ ] square root
 - [ ] trim trailing zeros

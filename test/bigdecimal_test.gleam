@@ -273,11 +273,9 @@ fn common_assertions(
   expected_unscaled_value: BigInt,
   expected_scale: Int,
 ) {
-  value
-  |> bigdecimal.unscaled_value
+  bigdecimal.unscaled_value(of: value)
   |> should.equal(expected_unscaled_value)
 
-  value
-  |> bigdecimal.scale
+  bigdecimal.scale(of: value)
   |> should.equal(expected_scale)
 }

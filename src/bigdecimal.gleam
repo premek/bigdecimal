@@ -15,12 +15,12 @@ pub opaque type BigDecimal {
   )
 }
 
-pub fn unscaled_value(value: BigDecimal) -> BigInt {
+pub fn unscaled_value(of value: BigDecimal) -> BigInt {
   let BigDecimal(unscaled_value, ..) = value
   unscaled_value
 }
 
-pub fn scale(value: BigDecimal) -> Int {
+pub fn scale(of value: BigDecimal) -> Int {
   let BigDecimal(_, scale, ..) = value
   scale
 }
