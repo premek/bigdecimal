@@ -81,6 +81,28 @@ pub fn addition__test() {
       bigdecimal.from_string("7.89E9") |> should.be_ok,
       bigdecimal.from_string("0e7") |> should.be_ok,
     ),
+    // augend scale smaller
+    #(
+      bigdecimal.from_string("1.2") |> should.be_ok,
+      bigdecimal.from_string("1.23") |> should.be_ok,
+      bigdecimal.from_string("2.43") |> should.be_ok,
+    ),
+    #(
+      bigdecimal.from_string("-7.89E9") |> should.be_ok,
+      bigdecimal.from_string("6.11e-1") |> should.be_ok,
+      bigdecimal.from_string("-7889999999.389") |> should.be_ok,
+    ),
+    // addend scale smaller
+    #(
+      bigdecimal.from_string("1.23") |> should.be_ok,
+      bigdecimal.from_string("1.2") |> should.be_ok,
+      bigdecimal.from_string("2.43") |> should.be_ok,
+    ),
+    #(
+      bigdecimal.from_string("6.11e-1") |> should.be_ok,
+      bigdecimal.from_string("-7.89E9") |> should.be_ok,
+      bigdecimal.from_string("-7889999999.389") |> should.be_ok,
+    ),
   ])
 
   bigdecimal.add(augend, addend)
@@ -99,6 +121,28 @@ pub fn subtraction__test() {
       bigdecimal.from_string("-7.89E9") |> should.be_ok,
       bigdecimal.from_string("7.89E9") |> should.be_ok,
       bigdecimal.from_string("-15.78e9") |> should.be_ok,
+    ),
+    // minuend scale smaller
+    #(
+      bigdecimal.from_string("1.2") |> should.be_ok,
+      bigdecimal.from_string("1.23") |> should.be_ok,
+      bigdecimal.from_string("-0.03") |> should.be_ok,
+    ),
+    #(
+      bigdecimal.from_string("-7.89E9") |> should.be_ok,
+      bigdecimal.from_string("6.11e-1") |> should.be_ok,
+      bigdecimal.from_string("-7890000000.611") |> should.be_ok,
+    ),
+    // subtrahend scale smaller
+    #(
+      bigdecimal.from_string("1.23") |> should.be_ok,
+      bigdecimal.from_string("1.2") |> should.be_ok,
+      bigdecimal.from_string("0.03") |> should.be_ok,
+    ),
+    #(
+      bigdecimal.from_string("6.11e-1") |> should.be_ok,
+      bigdecimal.from_string("-7.89E9") |> should.be_ok,
+      bigdecimal.from_string("7890000000.611") |> should.be_ok,
     ),
   ])
 

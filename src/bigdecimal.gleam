@@ -37,26 +37,44 @@ pub fn negate(value: BigDecimal) -> BigDecimal {
 }
 
 pub fn add(augend: BigDecimal, addend: BigDecimal) -> BigDecimal {
-  case int.compare(scale(augend), scale(addend)) {
-    order.Eq ->
+  case int.subtract(scale(augend), scale(addend)) {
+    scale_difference if scale_difference < 0 ->
+      scale_adjusted_add(augend, addend, scale_difference)
+    scale_difference if scale_difference > 0 ->
+      scale_adjusted_add(addend, augend, scale_difference)
+    _same_scale ->
       BigDecimal(
         bigi.add(unscaled_value(augend), unscaled_value(addend)),
         scale(augend),
       )
-    order.Lt -> BigDecimal(todo, scale(addend))
-    order.Gt -> BigDecimal(todo, scale(augend))
   }
 }
 
+fn scale_adjusted_add(
+  to_scale: BigDecimal,
+  to_add: BigDecimal,
+  scale_difference: Int,
+) -> BigDecimal {
+  let assert Ok(new_unscaled_value) =
+    int.absolute_value(scale_difference)
+    |> bigi.from_int
+    |> bigi.power(bigi.from_int(10), _)
+    |> result.map(bigi.multiply(_, unscaled_value(to_scale)))
+    |> result.map(bigi.add(_, unscaled_value(to_add)))
+  BigDecimal(new_unscaled_value, scale(to_add))
+}
+
 pub fn subtract(minuend: BigDecimal, subtrahend: BigDecimal) -> BigDecimal {
-  case int.compare(scale(minuend), scale(subtrahend)) {
-    order.Eq ->
+  case int.subtract(scale(minuend), scale(subtrahend)) {
+    scale_difference if scale_difference < 0 ->
+      scale_adjusted_add(minuend, negate(subtrahend), scale_difference)
+    scale_difference if scale_difference > 0 ->
+      scale_adjusted_add(negate(subtrahend), minuend, scale_difference)
+    _same_scale ->
       BigDecimal(
         bigi.subtract(unscaled_value(minuend), unscaled_value(subtrahend)),
         scale(minuend),
       )
-    order.Lt -> BigDecimal(todo, scale(subtrahend))
-    order.Gt -> BigDecimal(todo, scale(minuend))
   }
 }
 
