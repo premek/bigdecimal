@@ -28,8 +28,17 @@ pub fn zero() -> BigDecimal {
   BigDecimal(bigi.from_int(0), 0)
 }
 
-pub fn absolute(value: BigDecimal) -> BigDecimal {
+pub fn absolute_value(value: BigDecimal) -> BigDecimal {
   BigDecimal(bigi.absolute(unscaled_value(value)), scale(value))
+}
+
+/// Sign function. Returns +1 if the value is positive,
+/// -1 if the value is negative, 0 if the value is zero.
+///
+pub fn signum(value: BigDecimal) -> Int {
+  unscaled_value(value)
+  |> bigi.compare(with: bigi.zero())
+  |> order.to_int
 }
 
 pub fn negate(value: BigDecimal) -> BigDecimal {

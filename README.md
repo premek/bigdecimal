@@ -45,3 +45,17 @@ The library supports all targets and runtimes. To do a matrix run of the test su
 ```sh
 ./scripts/matrix-test.sh
 ```
+
+## TODO
+
+- [x] absolute value
+- [x] compare
+- [x] add
+- [x] subtract
+- [ ] multiply
+- [ ] divide
+- [ ] rescale/round (with rounding modes)
+- [ ] power
+- [ ] modulo
+- [x] signum
+- [ ] ulp

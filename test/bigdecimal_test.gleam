@@ -17,6 +17,21 @@ pub fn compare__test() {
     #(bigdecimal.from_float(1.24), bigdecimal.from_float(1.23), order.Gt),
     // not same scale
     #(
+      bigdecimal.from_string("-1.2") |> should.be_ok,
+      bigdecimal.from_string("-1.20") |> should.be_ok,
+      order.Eq,
+    ),
+    #(
+      bigdecimal.from_string("0.0") |> should.be_ok,
+      bigdecimal.from_string("0.00") |> should.be_ok,
+      order.Eq,
+    ),
+    #(
+      bigdecimal.from_string("-7.3e-2") |> should.be_ok,
+      bigdecimal.from_string("-73e-3") |> should.be_ok,
+      order.Eq,
+    ),
+    #(
       bigdecimal.from_string("1.2") |> should.be_ok,
       bigdecimal.from_string("1.23") |> should.be_ok,
       order.Lt,
@@ -61,7 +76,7 @@ pub fn absolute_value__test() {
   ])
 
   input
-  |> bigdecimal.absolute
+  |> bigdecimal.absolute_value
   |> should.equal(expected)
 }
 
