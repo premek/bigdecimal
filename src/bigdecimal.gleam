@@ -29,17 +29,27 @@ pub fn zero() -> BigDecimal {
   BigDecimal(bigi.from_int(0), 0)
 }
 
-pub fn absolute_value(value: BigDecimal) -> BigDecimal {
+pub fn one() -> BigDecimal {
+  BigDecimal(bigi.from_int(1), 0)
+}
+
+pub fn absolute_value(of value: BigDecimal) -> BigDecimal {
   BigDecimal(bigi.absolute(unscaled_value(value)), scale(value))
 }
 
 /// Sign function. Returns +1 if the value is positive,
 /// -1 if the value is negative, 0 if the value is zero.
 ///
-pub fn signum(value: BigDecimal) -> Int {
+pub fn signum(of value: BigDecimal) -> Int {
   unscaled_value(value)
   |> bigi.compare(with: bigi.zero())
   |> order.to_int
+}
+
+/// Returns the unit of least precision of this `BigDecimal`.
+///
+pub fn ulp(of value: BigDecimal) -> BigDecimal {
+  BigDecimal(bigi.from_int(1), scale(value))
 }
 
 pub fn negate(value: BigDecimal) -> BigDecimal {
@@ -61,7 +71,7 @@ pub fn add(augend: BigDecimal, addend: BigDecimal) -> BigDecimal {
 }
 
 pub fn sum(values: List(BigDecimal)) -> BigDecimal {
-  // this may be more efficient? idk need to test
+  // this may be more efficient? idk need to benchmark
   // list.reduce(over: values, with: add)
   // |> result.lazy_unwrap(zero)
   list.fold(over: values, from: zero(), with: add)
@@ -120,6 +130,25 @@ fn scale_adjusted_compare(
     |> result.map(bigi.multiply(_, unscaled_value(to_scale)))
     |> result.map(bigi.compare(_, unscaled_value(to_compare)))
   compare_order
+}
+
+pub fn multiply(
+  multiplicand: BigDecimal,
+  with multiplier: BigDecimal,
+) -> BigDecimal {
+  BigDecimal(
+    bigi.multiply(unscaled_value(multiplicand), unscaled_value(multiplier)),
+    int.add(scale(multiplicand), scale(multiplier)),
+  )
+}
+
+/// For an empty list, this will return `one()`.
+///
+pub fn product(values: List(BigDecimal)) -> BigDecimal {
+  // this may be more efficient? idk need to benchmark
+  // list.reduce(over: values, with: multiply)
+  // |> result.lazy_unwrap(one)
+  list.fold(over: values, from: one(), with: multiply)
 }
 
 pub fn from_float(value: Float) -> BigDecimal {

@@ -38,9 +38,31 @@ pub fn absolute_value__test() {
     #(bigd("-1"), bigd("1")),
   ])
 
-  input
-  |> bigdecimal.absolute_value
+  bigdecimal.absolute_value(of: input)
   |> should.equal(expected)
+}
+
+pub fn signum__test() {
+  use #(input, expected_sign) <- list.each([
+    #(bigd("0.000"), 0),
+    #(bigd("-1.23"), -1),
+    #(bigd("1.23"), 1),
+  ])
+
+  bigdecimal.signum(of: input)
+  |> should.equal(expected_sign)
+}
+
+pub fn ulp__test() {
+  use #(input, expected_ulp) <- list.each([
+    #(bigd("0.000"), bigd("0.001")),
+    #(bigd("-1.23"), bigd("0.01")),
+    #(bigd("3e-7"), bigd("0.0000001")),
+    #(bigd("650"), bigd("1")),
+  ])
+
+  bigdecimal.ulp(of: input)
+  |> should.equal(expected_ulp)
 }
 
 pub fn negation__test() {
@@ -52,8 +74,7 @@ pub fn negation__test() {
     #(bigd("-1"), bigd("1")),
   ])
 
-  input
-  |> bigdecimal.negate
+  bigdecimal.negate(input)
   |> should.equal(expected)
 }
 
@@ -80,8 +101,7 @@ pub fn sum__test() {
     #([bigd("1.00"), bigd("1"), bigd("0.1")], bigd("2.10")),
   ])
 
-  inputs
-  |> bigdecimal.sum
+  bigdecimal.sum(inputs)
   |> should.equal(expected_sum)
 }
 
@@ -100,6 +120,29 @@ pub fn subtraction__test() {
 
   bigdecimal.subtract(minuend, subtrahend)
   |> should.equal(result)
+}
+
+pub fn multiplication__test() {
+  use #(this, that, expected_product) <- list.each([
+    #(bigd("0.123"), bigd("1.23"), bigd("0.15129")),
+    #(bigd("0.0"), bigd("-12.93"), bigd("0.000")),
+    #(bigd("-3e2"), bigd("-0.2e4"), bigd("6e5")),
+  ])
+
+  bigdecimal.multiply(this, with: that)
+  |> should.equal(expected_product)
+}
+
+pub fn product__test() {
+  use #(inputs, expected_product) <- list.each([
+    #([], bigd("1")),
+    #([bigd("-3e-2")], bigd("-3e-2")),
+    #([bigd("0.123"), bigd("1.23"), bigd("1.0")], bigd("0.151290")),
+    #([bigd("0.0"), bigd("-12.93"), bigd("0.00")], bigd("0.00000")),
+  ])
+
+  bigdecimal.product(inputs)
+  |> should.equal(expected_product)
 }
 
 pub fn basic_parse__test() {
@@ -189,9 +232,13 @@ pub fn parse_fail__test() {
   |> should.be_error
 }
 
-pub fn zero__test() {
-  let bigd = bigdecimal.zero()
-  common_assertions(bigd, bigi.from_int(0), 0)
+pub fn constants__test() {
+  use #(util_const, expected_unscaled_value, expected_scale) <- list.each([
+    #(bigdecimal.zero(), bigi.from_int(0), 0),
+    #(bigdecimal.one(), bigi.from_int(1), 0),
+  ])
+
+  common_assertions(util_const, expected_unscaled_value, expected_scale)
 }
 
 pub fn from_float__test() {
