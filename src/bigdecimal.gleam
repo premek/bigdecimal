@@ -1,6 +1,7 @@
 import bigi.{type BigInt}
 import gleam/float
 import gleam/int
+import gleam/list
 import gleam/order
 import gleam/result
 import gleam/string
@@ -57,6 +58,13 @@ pub fn add(augend: BigDecimal, addend: BigDecimal) -> BigDecimal {
         scale(augend),
       )
   }
+}
+
+pub fn sum(values: List(BigDecimal)) -> BigDecimal {
+  // this may be more efficient? idk need to test
+  // list.reduce(over: values, with: add)
+  // |> result.lazy_unwrap(zero)
+  list.fold(over: values, from: zero(), with: add)
 }
 
 pub fn subtract(minuend: BigDecimal, subtrahend: BigDecimal) -> BigDecimal {

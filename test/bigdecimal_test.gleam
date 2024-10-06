@@ -12,45 +12,17 @@ pub fn main() {
 pub fn compare__test() {
   use #(this, that, expected_order) <- list.each([
     // same scale
-    #(bigdecimal.from_float(1.23), bigdecimal.from_float(1.23), order.Eq),
-    #(bigdecimal.from_float(1.22), bigdecimal.from_float(1.23), order.Lt),
-    #(bigdecimal.from_float(1.24), bigdecimal.from_float(1.23), order.Gt),
+    #(bigd("1.23"), bigd("1.23"), order.Eq),
+    #(bigd("1.22"), bigd("1.23"), order.Lt),
+    #(bigd("1.24"), bigd("1.23"), order.Gt),
     // not same scale
-    #(
-      bigdecimal.from_string("-1.2") |> should.be_ok,
-      bigdecimal.from_string("-1.20") |> should.be_ok,
-      order.Eq,
-    ),
-    #(
-      bigdecimal.from_string("0.0") |> should.be_ok,
-      bigdecimal.from_string("0.00") |> should.be_ok,
-      order.Eq,
-    ),
-    #(
-      bigdecimal.from_string("-7.3e-2") |> should.be_ok,
-      bigdecimal.from_string("-73e-3") |> should.be_ok,
-      order.Eq,
-    ),
-    #(
-      bigdecimal.from_string("1.2") |> should.be_ok,
-      bigdecimal.from_string("1.23") |> should.be_ok,
-      order.Lt,
-    ),
-    #(
-      bigdecimal.from_string("-1.3") |> should.be_ok,
-      bigdecimal.from_string("-1.23") |> should.be_ok,
-      order.Lt,
-    ),
-    #(
-      bigdecimal.from_string("1.23") |> should.be_ok,
-      bigdecimal.from_string("1.2") |> should.be_ok,
-      order.Gt,
-    ),
-    #(
-      bigdecimal.from_string("-1.23") |> should.be_ok,
-      bigdecimal.from_string("-1.3") |> should.be_ok,
-      order.Gt,
-    ),
+    #(bigd("-1.2"), bigd("-1.20"), order.Eq),
+    #(bigd("0.0"), bigd("0.00"), order.Eq),
+    #(bigd("-7.3e-2"), bigd("-73e-3"), order.Eq),
+    #(bigd("1.2"), bigd("1.23"), order.Lt),
+    #(bigd("-1.3"), bigd("-1.23"), order.Lt),
+    #(bigd("1.23"), bigd("1.2"), order.Gt),
+    #(bigd("-1.23"), bigd("-1.3"), order.Gt),
   ])
 
   bigdecimal.compare(this, with: that)
@@ -59,20 +31,11 @@ pub fn compare__test() {
 
 pub fn absolute_value__test() {
   use #(input, expected) <- list.each([
-    #(bigdecimal.from_float(-1.23), bigdecimal.from_float(1.23)),
-    #(bigdecimal.from_float(1.23), bigdecimal.from_float(1.23)),
-    #(
-      bigdecimal.from_string("-7.89E9") |> should.be_ok,
-      bigdecimal.from_string("7.89E9") |> should.be_ok,
-    ),
-    #(
-      bigdecimal.from_string("0.1234") |> should.be_ok,
-      bigdecimal.from_string("0.1234") |> should.be_ok,
-    ),
-    #(
-      bigdecimal.from_string("-1") |> should.be_ok,
-      bigdecimal.from_string("1") |> should.be_ok,
-    ),
+    #(bigd("-1.23"), bigd("1.23")),
+    #(bigd("1.23"), bigd("1.23")),
+    #(bigd("-7.89E9"), bigd("7.89E9")),
+    #(bigd("0.1234"), bigd("0.1234")),
+    #(bigd("-1"), bigd("1")),
   ])
 
   input
@@ -82,20 +45,11 @@ pub fn absolute_value__test() {
 
 pub fn negation__test() {
   use #(input, expected) <- list.each([
-    #(bigdecimal.from_float(-1.23), bigdecimal.from_float(1.23)),
-    #(bigdecimal.from_float(1.23), bigdecimal.from_float(-1.23)),
-    #(
-      bigdecimal.from_string("-7.89E9") |> should.be_ok,
-      bigdecimal.from_string("7.89E9") |> should.be_ok,
-    ),
-    #(
-      bigdecimal.from_string("0.1234") |> should.be_ok,
-      bigdecimal.from_string("-0.1234") |> should.be_ok,
-    ),
-    #(
-      bigdecimal.from_string("-1") |> should.be_ok,
-      bigdecimal.from_string("1") |> should.be_ok,
-    ),
+    #(bigd("-1.23"), bigd("1.23")),
+    #(bigd("1.23"), bigd("-1.23")),
+    #(bigd("-7.89E9"), bigd("7.89E9")),
+    #(bigd("0.1234"), bigd("-0.1234")),
+    #(bigd("-1"), bigd("1")),
   ])
 
   input
@@ -106,79 +60,42 @@ pub fn negation__test() {
 pub fn addition__test() {
   use #(augend, addend, result) <- list.each([
     // same scale
-    #(
-      bigdecimal.from_float(1.23),
-      bigdecimal.from_float(1.23),
-      bigdecimal.from_float(2.46),
-    ),
-    #(
-      bigdecimal.from_string("-7.89E9") |> should.be_ok,
-      bigdecimal.from_string("7.89E9") |> should.be_ok,
-      bigdecimal.from_string("0e7") |> should.be_ok,
-    ),
+    #(bigd("1.23"), bigd("1.23"), bigd("2.46")),
+    #(bigd("-7.89E9"), bigd("7.89E9"), bigd("0e7")),
     // augend scale smaller
-    #(
-      bigdecimal.from_string("1.2") |> should.be_ok,
-      bigdecimal.from_string("1.23") |> should.be_ok,
-      bigdecimal.from_string("2.43") |> should.be_ok,
-    ),
-    #(
-      bigdecimal.from_string("-7.89E9") |> should.be_ok,
-      bigdecimal.from_string("6.11e-1") |> should.be_ok,
-      bigdecimal.from_string("-7889999999.389") |> should.be_ok,
-    ),
+    #(bigd("1.2"), bigd("1.23"), bigd("2.43")),
+    #(bigd("-7.89E9"), bigd("6.11e-1"), bigd("-7889999999.389")),
     // addend scale smaller
-    #(
-      bigdecimal.from_string("1.23") |> should.be_ok,
-      bigdecimal.from_string("1.2") |> should.be_ok,
-      bigdecimal.from_string("2.43") |> should.be_ok,
-    ),
-    #(
-      bigdecimal.from_string("6.11e-1") |> should.be_ok,
-      bigdecimal.from_string("-7.89E9") |> should.be_ok,
-      bigdecimal.from_string("-7889999999.389") |> should.be_ok,
-    ),
+    #(bigd("1.23"), bigd("1.2"), bigd("2.43")),
+    #(bigd("6.11e-1"), bigd("-7.89E9"), bigd("-7889999999.389")),
   ])
 
   bigdecimal.add(augend, addend)
   |> should.equal(result)
 }
 
+pub fn sum__test() {
+  use #(inputs, expected_sum) <- list.each([
+    #([], bigdecimal.zero()),
+    #([bigd("1.00"), bigd("1"), bigd("0.1")], bigd("2.10")),
+  ])
+
+  inputs
+  |> bigdecimal.sum
+  |> should.equal(expected_sum)
+}
+
 pub fn subtraction__test() {
   use #(minuend, subtrahend, result) <- list.each([
     // same scale
-    #(
-      bigdecimal.from_float(1.23),
-      bigdecimal.from_float(1.23),
-      bigdecimal.from_string("0.00") |> should.be_ok,
-    ),
-    #(
-      bigdecimal.from_string("-7.89E9") |> should.be_ok,
-      bigdecimal.from_string("7.89E9") |> should.be_ok,
-      bigdecimal.from_string("-15.78e9") |> should.be_ok,
-    ),
+    #(bigd("1.23"), bigd("1.23"), bigd("0.00")),
+    #(bigd("-7.89E9"), bigd("7.89E9"), bigd("-15.78e9")),
     // minuend scale smaller
-    #(
-      bigdecimal.from_string("1.2") |> should.be_ok,
-      bigdecimal.from_string("1.23") |> should.be_ok,
-      bigdecimal.from_string("-0.03") |> should.be_ok,
-    ),
-    #(
-      bigdecimal.from_string("-7.89E9") |> should.be_ok,
-      bigdecimal.from_string("6.11e-1") |> should.be_ok,
-      bigdecimal.from_string("-7890000000.611") |> should.be_ok,
-    ),
+    #(bigd("1.2"), bigd("1.23"), bigd("-0.03")),
+    #(bigd("-7.89E9"), bigd("6.11e-1"), bigd("-7890000000.611")),
     // subtrahend scale smaller
-    #(
-      bigdecimal.from_string("1.23") |> should.be_ok,
-      bigdecimal.from_string("1.2") |> should.be_ok,
-      bigdecimal.from_string("0.03") |> should.be_ok,
-    ),
-    #(
-      bigdecimal.from_string("6.11e-1") |> should.be_ok,
-      bigdecimal.from_string("-7.89E9") |> should.be_ok,
-      bigdecimal.from_string("7890000000.611") |> should.be_ok,
-    ),
+    #(bigd("1.23"), bigd("1.2"), bigd("0.03")),
+    #(bigd("6.11e-1"), bigd("-7.89E9"), bigd("7890000000.611")),
   ])
 
   bigdecimal.subtract(minuend, subtrahend)
@@ -295,10 +212,13 @@ fn from_string_common_assertions(
   expected_unscaled_value: BigInt,
   expected_scale: Int,
 ) {
-  let bigd =
-    bigdecimal.from_string(input)
-    |> should.be_ok
-  common_assertions(bigd, expected_unscaled_value, expected_scale)
+  bigd(input)
+  |> common_assertions(expected_unscaled_value, expected_scale)
+}
+
+fn bigd(input: String) {
+  bigdecimal.from_string(input)
+  |> should.be_ok
 }
 
 fn common_assertions(

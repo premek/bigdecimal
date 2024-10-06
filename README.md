@@ -59,3 +59,8 @@ The library supports all targets and runtimes. To do a matrix run of the test su
 - [ ] modulo
 - [x] signum
 - [ ] ulp
+- [ ] clamp
+- [ ] product (list input)
+- [x] sum (list input)
+- [ ] square root
+- [ ] truncate (to BigInt)
