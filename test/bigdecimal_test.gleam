@@ -111,6 +111,27 @@ pub fn rescale__test() {
     // smaller scale - Down
     #(bigd("1.987"), 2, rounding.Down, bigd("1.98")),
     #(bigd("-1.987"), 0, rounding.Down, bigd("-1")),
+    // smaller scale - HalfUp
+    #(bigd("1.234"), 2, rounding.HalfUp, bigd("1.23")),
+    #(bigd("1.235"), 2, rounding.HalfUp, bigd("1.24")),
+    #(bigd("1.236"), 2, rounding.HalfUp, bigd("1.24")),
+    #(bigd("-1.499"), 0, rounding.HalfUp, bigd("-1")),
+    #(bigd("-1.500"), 0, rounding.HalfUp, bigd("-2")),
+    #(bigd("-1.501"), 0, rounding.HalfUp, bigd("-2")),
+    // smaller scale - HalfDown
+    #(bigd("1.234"), 2, rounding.HalfDown, bigd("1.23")),
+    #(bigd("1.235"), 2, rounding.HalfDown, bigd("1.23")),
+    #(bigd("1.236"), 2, rounding.HalfDown, bigd("1.24")),
+    #(bigd("-1.499"), 0, rounding.HalfDown, bigd("-1")),
+    #(bigd("-1.500"), 0, rounding.HalfDown, bigd("-1")),
+    #(bigd("-1.501"), 0, rounding.HalfDown, bigd("-2")),
+    // smaller scale - HalfEven
+    #(bigd("1.234"), 2, rounding.HalfEven, bigd("1.23")),
+    #(bigd("1.235"), 2, rounding.HalfEven, bigd("1.24")),
+    #(bigd("1.236"), 2, rounding.HalfEven, bigd("1.24")),
+    #(bigd("-0.499"), 0, rounding.HalfEven, bigd("-0")),
+    #(bigd("-0.500"), 0, rounding.HalfEven, bigd("-0")),
+    #(bigd("-0.501"), 0, rounding.HalfEven, bigd("-1")),
   ])
 
   bigdecimal.rescale(input, scale: new_scale, rounding:)

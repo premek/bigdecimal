@@ -1,4 +1,6 @@
-import bigdecimal/rounding.{type RoundingMode, Ceiling, Floor, Up}
+import bigdecimal/rounding.{
+  type RoundingMode, Ceiling, Floor, HalfDown, HalfEven, HalfUp, Up,
+}
 import bigi.{type BigInt}
 import gleam/float
 import gleam/int
@@ -100,6 +102,9 @@ fn rescale_with_rounding(
     Floor, s if s < 0 -> bigi.from_int(-1)
     Ceiling, s if s > 0 -> bigi.from_int(1)
     Up, s -> bigi.from_int(s)
+    HalfUp, _ | HalfDown, _ | HalfEven, _ -> {
+      todo
+    }
     _, _ -> bigi.from_int(0)
   }
 
