@@ -1,3 +1,4 @@
+import bigdecimal/rounding.{type RoundingMode, Ceiling, Floor, Up}
 import bigi.{type BigInt}
 import gleam/float
 import gleam/int
@@ -14,18 +15,6 @@ pub opaque type BigDecimal {
     // scale
     Int,
   )
-}
-
-pub type RoundingMode {
-  /// Round towards positive infinity
-  Ceiling
-  /// Round towards negative infinity
-  Floor
-  /// Round towards zero
-  Down
-  /// Round away from zero
-  Up
-  // TODO: half-up, half-down, half-even
 }
 
 pub fn unscaled_value(of value: BigDecimal) -> BigInt {
@@ -87,15 +76,11 @@ pub fn rescale(
   scale new_scale: Int,
   rounding rounding: RoundingMode,
 ) -> BigDecimal {
-  // unscaled_value(value) / 10^scale_diff
   let scale_diff = scale(value) - new_scale
-  case int.compare(scale_diff, 0), rounding {
-    Eq, _ -> value
-    Lt, _ -> add_zeros(value, new_scale, -scale_diff)
-    Gt, Ceiling -> BigDecimal(todo, new_scale)
-    Gt, Floor -> floor_rescale(value, new_scale, scale_diff)
-    Gt, Up -> BigDecimal(todo, new_scale)
-    Gt, Down -> BigDecimal(todo, new_scale)
+  case int.compare(scale_diff, 0) {
+    Eq -> value
+    Lt -> add_zeros(value, new_scale, -scale_diff)
+    Gt -> rescale_with_rounding(value, new_scale, scale_diff, rounding)
   }
 }
 
@@ -105,11 +90,22 @@ fn add_zeros(value: BigDecimal, new_scale: Int, scale_diff: Int) {
   |> BigDecimal(new_scale)
 }
 
-fn floor_rescale(value: BigDecimal, new_scale: Int, scale_diff: Int) {
+fn rescale_with_rounding(
+  value: BigDecimal,
+  new_scale: Int,
+  scale_diff: Int,
+  rounding: RoundingMode,
+) {
+  let adjustment = case rounding, signum(value) {
+    Floor, s if s < 0 -> bigi.from_int(-1)
+    Ceiling, s if s > 0 -> bigi.from_int(1)
+    Up, s -> bigi.from_int(s)
+    _, _ -> bigi.from_int(0)
+  }
+
   unscaled_value(value)
-  |> bigi.floor_divide(multiply_power_of_ten(bigi.from_int(1), scale_diff))
-  // unreachable unwrap
-  |> result.lazy_unwrap(fn() { bigi.from_int(0) })
+  |> bigi.divide(multiply_power_of_ten(bigi.from_int(1), scale_diff))
+  |> bigi.add(adjustment)
   |> BigDecimal(new_scale)
 }
 

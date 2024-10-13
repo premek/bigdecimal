@@ -1,4 +1,5 @@
 import bigdecimal.{type BigDecimal}
+import bigdecimal/rounding
 import bigi.{type BigInt}
 import gleam/list
 import gleam/order
@@ -94,13 +95,22 @@ pub fn negation__test() {
 pub fn rescale__test() {
   use #(input, new_scale, rounding, expected) <- list.each([
     // same scale
-    #(bigd("2.1e-3"), 4, bigdecimal.Floor, bigd("2.1e-3")),
+    #(bigd("2.1e-3"), 4, rounding.Floor, bigd("2.1e-3")),
     // bigger scale
-    #(bigd("1"), 5, bigdecimal.Floor, bigd("1.00000")),
-    #(bigd("-0.123"), 4, bigdecimal.Floor, bigd("-0.1230")),
+    #(bigd("1"), 5, rounding.Floor, bigd("1.00000")),
+    #(bigd("-0.123"), 4, rounding.Floor, bigd("-0.1230")),
     // smaller scale - Floor
-    #(bigd("1.987"), 2, bigdecimal.Floor, bigd("1.98")),
-    #(bigd("-1.234"), 0, bigdecimal.Floor, bigd("-2")),
+    #(bigd("1.987"), 2, rounding.Floor, bigd("1.98")),
+    #(bigd("-1.234"), 0, rounding.Floor, bigd("-2")),
+    // smaller scale - Ceiling
+    #(bigd("1.987"), 2, rounding.Ceiling, bigd("1.99")),
+    #(bigd("-1.234"), 0, rounding.Ceiling, bigd("-1")),
+    // smaller scale - Up
+    #(bigd("1.234"), 2, rounding.Up, bigd("1.24")),
+    #(bigd("-1.234"), 0, rounding.Up, bigd("-2")),
+    // smaller scale - Down
+    #(bigd("1.987"), 2, rounding.Down, bigd("1.98")),
+    #(bigd("-1.987"), 0, rounding.Down, bigd("-1")),
   ])
 
   bigdecimal.rescale(input, scale: new_scale, rounding:)
