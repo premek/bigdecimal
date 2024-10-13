@@ -3,7 +3,7 @@ import gleam/float
 import gleam/int
 import gleam/io
 import gleam/list
-import gleam/order
+import gleam/order.{Eq, Gt, Lt}
 import gleam/result
 import gleam/string
 
@@ -84,15 +84,33 @@ pub fn negate(value: BigDecimal) -> BigDecimal {
 
 pub fn rescale(
   value: BigDecimal,
-  scale: Int,
-  rounding: RoundingMode,
+  scale new_scale: Int,
+  rounding rounding: RoundingMode,
 ) -> BigDecimal {
-  case rounding {
-    Ceiling -> BigDecimal(todo, scale)
-    Floor -> BigDecimal(todo, scale)
-    Up -> BigDecimal(todo, scale)
-    Down -> BigDecimal(todo, scale)
+  // unscaled_value(value) / 10^scale_diff
+  let scale_diff = scale(value) - new_scale
+  case int.compare(scale_diff, 0), rounding {
+    Eq, _ -> value
+    Lt, _ -> add_zeros(value, new_scale, -scale_diff)
+    Gt, Ceiling -> BigDecimal(todo, new_scale)
+    Gt, Floor -> floor_rescale(value, new_scale, scale_diff)
+    Gt, Up -> BigDecimal(todo, new_scale)
+    Gt, Down -> BigDecimal(todo, new_scale)
   }
+}
+
+fn add_zeros(value: BigDecimal, new_scale: Int, scale_diff: Int) {
+  unscaled_value(value)
+  |> multiply_power_of_ten(scale_diff)
+  |> BigDecimal(new_scale)
+}
+
+fn floor_rescale(value: BigDecimal, new_scale: Int, scale_diff: Int) {
+  unscaled_value(value)
+  |> bigi.floor_divide(multiply_power_of_ten(bigi.from_int(1), scale_diff))
+  // unreachable unwrap
+  |> result.lazy_unwrap(fn() { bigi.from_int(0) })
+  |> BigDecimal(new_scale)
 }
 
 pub fn add(augend: BigDecimal, addend: BigDecimal) -> BigDecimal {

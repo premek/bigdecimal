@@ -91,6 +91,22 @@ pub fn negation__test() {
   |> should.equal(expected)
 }
 
+pub fn rescale__test() {
+  use #(input, new_scale, rounding, expected) <- list.each([
+    // same scale
+    #(bigd("2.1e-3"), 4, bigdecimal.Floor, bigd("2.1e-3")),
+    // bigger scale
+    #(bigd("1"), 5, bigdecimal.Floor, bigd("1.00000")),
+    #(bigd("-0.123"), 4, bigdecimal.Floor, bigd("-0.1230")),
+    // smaller scale - Floor
+    #(bigd("1.987"), 2, bigdecimal.Floor, bigd("1.98")),
+    #(bigd("-1.234"), 0, bigdecimal.Floor, bigd("-2")),
+  ])
+
+  bigdecimal.rescale(input, scale: new_scale, rounding:)
+  |> should.equal(expected)
+}
+
 pub fn addition__test() {
   use #(augend, addend, result) <- list.each([
     // same scale
