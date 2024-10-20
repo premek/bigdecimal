@@ -250,17 +250,22 @@ pub fn product__test() {
 }
 
 pub fn division__test() {
-  use #(input, divisor, expected_quotient) <- list.each([
+  use #(input, divisor, rounding, expected_quotient) <- list.each([
     // dividend is zero
-    #(bigd("0.00"), bigd("92.71245"), bigd("0e3")),
+    #(bigd("0.00"), bigd("92.71245"), rounding.Floor, bigd("0e3")),
     // divisor is zero
-    #(bigd("92.71245"), bigd("0.000"), bigd("0")),
+    #(bigd("92.71245"), bigd("0.000"), rounding.Floor, bigd("0")),
     // non-edge cases
-  // #(bigd("1"), bigd("2"), bigd("0.50")),
-  // #(bigd("1.00000000"), bigd("20"), bigd("0.50")),
+    #(bigd("1"), bigd("2"), rounding.Floor, bigd("0.5")),
+    #(bigd("1.25"), bigd("10"), rounding.Floor, bigd("0.125")),
+    #(bigd("1.00000000"), bigd("20"), rounding.Floor, bigd("0.05000000")),
+    #(bigd("1"), bigd("3"), rounding.Floor, bigd("0.33333")),
+    #(bigd("0.333"), bigd("0.33"), rounding.Floor, bigd("1.009090909")),
+    #(bigd("-0.123"), bigd("0.4"), rounding.Floor, bigd("-0.3075")),
+    #(bigd("-0.123"), bigd("-0.4"), rounding.Floor, bigd("0.3075")),
   ])
 
-  bigdecimal.divide(input, by: divisor)
+  bigdecimal.divide(input, by: divisor, rounding:)
   |> should.equal(expected_quotient)
 }
 

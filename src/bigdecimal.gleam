@@ -4,7 +4,6 @@ import bigdecimal/rounding.{
 import bigi.{type BigInt}
 import gleam/float
 import gleam/int
-import gleam/io
 import gleam/list
 import gleam/order.{Eq, Gt, Lt}
 import gleam/result
@@ -38,6 +37,7 @@ pub fn one() -> BigDecimal {
 }
 
 /// The number of digits in the unscaled value.
+///
 pub fn precision(of value: BigDecimal) -> Int {
   // todo: seems kinda inefficient
   let string_length =
@@ -130,18 +130,40 @@ fn rescale_with_rounding(
   let unscaled = unscaled_value(value)
   let quotient = bigi.divide(unscaled, tens)
 
-  let adjustment = case rounding, signum(value) {
+  adjust_unscaled_value_for_rounding(
+    unscaled,
+    signum(value),
+    quotient,
+    tens,
+    rounding,
+  )
+  |> BigDecimal(new_scale)
+}
+
+fn adjust_unscaled_value_for_rounding(
+  unscaled_value: BigInt,
+  quotient_sign: Int,
+  quotient: BigInt,
+  divisor: BigInt,
+  rounding: RoundingMode,
+) {
+  let adjustment = case rounding, quotient_sign {
     Floor, s if s < 0 -> bigi.from_int(-1)
     Ceiling, s if s > 0 -> bigi.from_int(1)
     Up, s -> bigi.from_int(s)
     HalfUp, s | HalfDown, s | HalfEven, s if s != 0 ->
-      calculate_adjustment_for_half_round(unscaled, s, quotient, tens, rounding)
+      calculate_adjustment_for_half_round(
+        unscaled_value,
+        s,
+        quotient,
+        divisor,
+        rounding,
+      )
     _, _ -> bigi.zero()
   }
 
   quotient
   |> bigi.add(adjustment)
-  |> BigDecimal(new_scale)
 }
 
 fn calculate_adjustment_for_half_round(
@@ -183,9 +205,9 @@ fn is_even(value: BigInt) {
 }
 
 fn get_magnitude(value: BigInt, magnitude: Int) {
-  let q = bigi.divide(value, bigi.from_int(10))
-  case bigi.compare(q, bigi.zero()) {
-    Lt | Gt -> get_magnitude(q, magnitude + 1)
+  let quotient = bigi.divide(value, bigi.from_int(10))
+  case bigi.compare(quotient, bigi.zero()) {
+    Lt | Gt -> get_magnitude(quotient, magnitude + 1)
     Eq -> magnitude
   }
 }
@@ -293,12 +315,20 @@ pub fn product(values: List(BigDecimal)) -> BigDecimal {
   list.fold(over: values, from: one(), with: multiply)
 }
 
-pub fn divide(dividend: BigDecimal, by divisor: BigDecimal) -> BigDecimal {
+/// Divide the dividend by the divisor.
+/// The result has a preferred scale of `scale(dividend) - scale(divisor)`,
+/// but might have scale up to `precision(dividend) + ceil(10 * precision(divisor) / 3)`.
+///
+pub fn divide(
+  dividend: BigDecimal,
+  by divisor: BigDecimal,
+  rounding rounding: RoundingMode,
+) -> BigDecimal {
   let new_scale = scale(dividend) - scale(divisor)
   case signum(dividend), signum(divisor) {
     _, 0 -> zero()
     0, _ -> BigDecimal(bigi.from_int(0), new_scale)
-    _, _ -> divide_internal(dividend, divisor, new_scale)
+    _, _ -> divide_internal(dividend, divisor, new_scale, rounding)
   }
 }
 
@@ -306,28 +336,89 @@ fn divide_internal(
   dividend: BigDecimal,
   divisor: BigDecimal,
   preferred_scale: Int,
+  rounding: RoundingMode,
 ) {
-  io.debug(preferred_scale)
-  let precision =
-    precision(divisor)
-    |> int.multiply(10)
+  let new_scale =
+    { 10 * precision(divisor) }
     |> int.to_float
     |> float.divide(3.0)
-    // unreachable unwrap - divide never errors
+    // unreachable unwrap
     |> result.lazy_unwrap(fn() { 0.0 })
     |> float.ceiling
     |> float.round
-    |> int.min(precision(dividend))
-    |> io.debug
+    |> int.add(precision(dividend))
 
-  bigi.divide(unscaled_value(dividend), unscaled_value(divisor))
-  |> io.debug
+  case scale(divisor) - scale(dividend) + new_scale {
+    x if x > 0 ->
+      unscaled_value(dividend)
+      |> multiply_power_of_ten(x)
+      |> divide_and_round(unscaled_value(divisor), new_scale, rounding)
+    x ->
+      unscaled_value(divisor)
+      |> multiply_power_of_ten(-x)
+      |> divide_and_round(unscaled_value(dividend), _, new_scale, rounding)
+  }
+  |> trim_zeros_to_match_scale(preferred_scale)
+}
 
-  todo
+fn divide_and_round(
+  dividend: BigInt,
+  divisor: BigInt,
+  scale: Int,
+  rounding: RoundingMode,
+) {
+  let quotient = bigi.divide(dividend, divisor)
+
+  let quotient_sign =
+    bigi.compare(quotient, bigi.zero())
+    |> order.to_int
+
+  let remainder = bigi.remainder(dividend, divisor)
+
+  case bigi.compare(remainder, bigi.zero()) {
+    Eq -> BigDecimal(quotient, scale)
+    Lt | Gt ->
+      adjust_unscaled_value_for_rounding(
+        dividend,
+        quotient_sign,
+        quotient,
+        divisor,
+        rounding,
+      )
+      |> BigDecimal(scale)
+  }
+}
+
+/// trims trailing zeros until the requested scale
+/// is reached or no more zeros can be trimmed
+///
+fn trim_zeros_to_match_scale(value: BigDecimal, preferred_scale: Int) {
+  case scale(value) > preferred_scale {
+    False -> value
+    True -> {
+      let non_zero_remainder =
+        unscaled_value(value)
+        |> bigi.remainder(bigi.from_int(10))
+        |> bigi.compare(bigi.zero())
+        != Eq
+
+      case non_zero_remainder {
+        True -> value
+        False ->
+          trim_zeros_to_match_scale(
+            unscaled_value(value)
+              |> bigi.divide(bigi.from_int(10))
+              |> BigDecimal(scale(value) - 1),
+            preferred_scale,
+          )
+      }
+    }
+  }
 }
 
 /// Returns an error if the exponent is negative.
 /// (Inherited behaviour from `bigi`)
+///
 pub fn power(value: BigDecimal, exponent: Int) {
   unscaled_value(value)
   |> bigi.power(bigi.from_int(exponent))
