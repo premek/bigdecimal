@@ -48,23 +48,7 @@ The library supports all targets and runtimes. To do a matrix run of the test su
 
 ## TODO
 
-### Pre v1
-- [x] absolute value
-- [x] compare
-- [x] add
-- [x] subtract
-- [x] multiply
-- [x] product (list input)
-- [x] sum (list input)
-- [x] signum
-- [x] ulp
-- [x] power
-- [x] rescale/round (with rounding modes)
-- [x] clamp
-- [x] divide
-
-### Post v1
-- [ ] modulo
+- [ ] remainder
 - [ ] square root
 - [ ] trim trailing zeros
 - [ ] truncate (to BigInt)
