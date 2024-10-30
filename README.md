@@ -7,8 +7,7 @@
 
 A library for [arbitrary precision decimal arithmetic](https://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic) in Gleam.
 
-This library builds on the excellent [bigi](https://hex.pm/packages/bigi) library, which is used
-to represent the unscaled value of `BigDecimal`s.
+This library builds on the excellent [bigi](https://hex.pm/packages/bigi) library.
 A `BigDecimal` consists of an arbitrary precision integer unscaled value of type `bigi.Bigint`
 and an integer scale of built-in type `Int` (arbitrary precision on the Erlang target, bound between
 [Number.MIN_SAFE_INTEGER](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MIN_SAFE_INTEGER)
