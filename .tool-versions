@@ -1,5 +1,5 @@
-gleam 1.5.1
-erlang 27.0.1
-node 20.18
+gleam 1.6.1
+erlang 27.1
+node 22.11
 deno 2
 bun 1.1
